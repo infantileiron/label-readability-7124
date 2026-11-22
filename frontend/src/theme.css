@@ -200,6 +200,23 @@ th, td { padding: 10px 15px; border-bottom: 1px solid var(--line); }
 .unavailable { margin-top: 13px; }
 .signoff blockquote { margin-top: 15px; padding: 13px 15px; border-left: 3px solid var(--wine); background: var(--paper); line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; }
 .signature { text-align: right; margin-block: 10px 19px; color: var(--muted); }
+.roster-summary, .roster-settings { padding: 18px 21px; }
+.roster-summary { border-top: 3px solid var(--wine); margin-bottom: 13px; }
+.roster-headline { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--line); margin-block: 11px; }
+.roster-headline > div { padding: 11px 15px; border-right: 1px solid var(--line); }
+.roster-headline > div:last-child { border-right: 0; }
+.roster-headline b { display: block; font: 750 clamp(21px, 2.6vw, 33px)/1.2 var(--mono); letter-spacing: -.05em; }
+.roster-headline span { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+.roster-actions { justify-content: flex-start; margin-top: 13px; }
+.roster-runs { display: grid; gap: 9px; margin-block: 12px; }
+.roster-run { grid-template-columns: minmax(0, 1fr) minmax(180px, auto); align-items: center; gap: 13px; border: 1px solid var(--line); padding: 10px 12px; background: var(--paper); }
+.roster-run small { display: block; color: var(--muted); font-size: 11px; font-weight: 500; margin-top: 3px; }
+.roster-run select { max-width: 100%; }
+.roster-findings { margin-top: 13px; }
+.roster-findings ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.finding { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 11px; align-items: baseline; padding: 9px 12px; background: var(--amber-pale); color: var(--amber); border-left: 3px solid var(--amber); }
+.finding b { font-weight: 750; }
+.finding.limit { background: var(--green-pale); color: var(--green); border-left-color: var(--green); }
 dialog { color: var(--ink); background: var(--sheet); padding: 24px; border: 1px solid var(--line); border-top: 3px solid var(--wine); border-radius: 3px; width: min(510px, calc(100% - 25px)); box-shadow: 0 15px 55px oklch(29% .045 47 / .23); }
 dialog::backdrop { background: oklch(27% .039 55 / .48); }
 #notice:not(:empty) { position: fixed; right: 24px; bottom: 23px; max-width: calc(100vw - 48px); z-index: 4; box-shadow: 0 5px 20px oklch(31% .07 35 / .25); border-radius: 3px; padding: 10px 16px; background: var(--wine); color: var(--sheet); }
@@ -229,6 +246,11 @@ dialog::backdrop { background: oklch(27% .039 55 / .48); }
   .login-main .brand { align-self: flex-start; }
   .login-art { min-height: 350px; }
   .proof-wall, .run-grid, .review-grid { grid-template-columns: 1fr; }
+  .roster-headline { grid-template-columns: 1fr 1fr; }
+  .roster-headline > div:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+  .roster-headline > div:nth-child(even) { border-right: 0; }
+  .roster-run { grid-template-columns: 1fr; }
+  .finding { grid-template-columns: 1fr; gap: 3px; }
   .label-proof { min-height: auto; }
   .table-tools, .foot-action { flex-wrap: wrap; }
   .pair-scroll th, .pair-scroll td { padding-inline: 8px; white-space: nowrap; }

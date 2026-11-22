@@ -6,6 +6,7 @@ const paths = {
   versions: '<rect x="3.5" y="4" width="17" height="16" rx="1"/><path d="M12 4v16M6.5 8h2.5m6 0h2.5M6.5 12h2.5m6 0h2.5"/>',
   pairs: '<rect x="4" y="4" width="16" height="16" rx="1"/><path d="M4 9h16M4 14h16M10 9v11"/>',
   runs: '<path d="M4 5v15h16M8 15l4-5 3 2 5-6"/><circle cx="20" cy="6" r="1.5"/>',
+  rosters: '<rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><path d="M13 16.5h7M16.5 13v7"/>',
   review: '<path d="M14 3H6v18h12V7zM14 3v4h4M8.5 14l2.5 2.5 4.5-5"/>',
   export: '<path d="M12 3v12m-4-4 4 4 4-4M5 16v4h14v-4"/>',
   arrow: '<path d="M4 12h15m-5-5 5 5-5 5"/>',
@@ -23,7 +24,7 @@ export const empty = (title, text) => `<div class="empty"><h3>${esc(title)}</h3>
 export const formError = '<p class="form-error" data-form-error role="alert" hidden></p>';
 export const formFooter = (label, cancel = true) => `<div class="form-actions">${cancel ? '<button type="button" data-close>取消</button>' : ''}<button class="primary" type="submit">${label}</button></div>`;
 
-const navigation = { versions: '版本对照', pairs: '配对记录', runs: '复验分析', review: '印前会签' };
+const navigation = { versions: '版本对照', pairs: '配对记录', runs: '复验分析', rosters: '合并名单', review: '印前会签' };
 
 export function layout(page, content) {
   const { user, studies, studyId, study } = store;

@@ -8,9 +8,12 @@ from src.constants.enums import Role
 from src.controllers.auth import current_user, login, require_role
 from src.controllers.studies import study_detail
 from src.models.database import connect
-from src.schemas.inputs import Credentials, PairInput, ReviewInput, RunInput, StudyInput, VersionInput
-from src.services.exports import pairing_csv
+from src.schemas.inputs import Credentials, PairInput, ReviewInput, RosterInput, RunInput, StudyInput, VersionInput
+from src.services.exports import pairing_csv, roster_csv
 from src.services.records import add_study, add_version, save_pair
+from src.services.rosters import build as build_roster
+from src.services.rosters import available_runs, export_roster, list_rosters, stale_runs
+from src.services.rosters import load as load_roster
 from src.services.runs import detail, enqueue, export_data, review
 
 api = APIRouter(prefix='/api')
@@ -92,3 +95,41 @@ def download_csv(run_id: int, user=Depends(current_user)):
         data = export_data(db, run_id, user['role'])
     return Response('\ufeff' + pairing_csv(data), media_type='text/csv',
                     headers={'Content-Disposition': f'attachment; filename="proof-{run_id}-pairs.csv"'})
+
+
+@api.get('/rosters')
+def rosters(user=Depends(current_user)):
+    with connect() as db:
+        return {'rosters': list_rosters(db), 'runs': available_runs(db), 'stale_runs': stale_runs(db)}
+
+
+@api.post('/rosters', status_code=201)
+def create_roster(data: RosterInput, response: Response, user=Depends(analyst)):
+    with connect() as db:
+        roster, created = build_roster(db, data.run_ids, user['username'], data.previous_id)
+    if not created:
+        response.status_code = 200
+    return roster
+
+
+@api.get('/rosters/{roster_id}')
+def get_roster(roster_id: int, user=Depends(current_user)):
+    with connect() as db:
+        return load_roster(db, roster_id)
+
+
+@api.get('/rosters/{roster_id}/members.csv')
+def download_roster_csv(roster_id: int, user=Depends(current_user)):
+    with connect() as db:
+        data = export_roster(db, roster_id)
+    return Response('\ufeff' + roster_csv(data), media_type='text/csv',
+                    headers={'Content-Disposition': f'attachment; filename="roster-{roster_id}.csv"'})
+
+
+@api.get('/rosters/{roster_id}/export.json')
+def download_roster_json(roster_id: int, user=Depends(current_user)):
+    with connect() as db:
+        data = export_roster(db, roster_id)
+    return Response(json.dumps(jsonable_encoder(data), ensure_ascii=False, indent=2),
+                    media_type='application/json',
+                    headers={'Content-Disposition': f'attachment; filename="roster-{roster_id}.json"'})

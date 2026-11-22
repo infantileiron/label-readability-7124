@@ -51,6 +51,19 @@ class RunInput(Input):
     confidence: Literal[90, 95, 99]
 
 
+class RosterInput(Input):
+    run_ids: Annotated[list[int], Field(min_length=2, max_length=12)]
+    previous_id: int | None = Field(default=None, gt=0)
+
+    @model_validator(mode='after')
+    def distinct_runs(self):
+        if len(set(self.run_ids)) != len(self.run_ids):
+            raise ValueError('同一复验运行不能重复选择')
+        if any(run_id <= 0 for run_id in self.run_ids):
+            raise ValueError('复验运行编号无效')
+        return self
+
+
 class ReviewInput(Input):
     decision: Decision
     note: Annotated[str, StringConstraints(strip_whitespace=True, min_length=6, max_length=500)]

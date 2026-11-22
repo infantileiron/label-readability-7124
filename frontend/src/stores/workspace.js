@@ -1,6 +1,7 @@
 import { request, sessionKey } from '../api/client.js';
 
-export const store = { user: null, versions: [], studies: [], study: null, studyId: null, pairFilter: 'all' };
+export const store = { user: null, versions: [], studies: [], study: null, studyId: null,
+  pairFilter: 'all', rosterData: null, roster: null };
 
 export async function loadCatalog(preferred = store.studyId) {
   const { versions, studies } = await request('/catalog');
@@ -24,5 +25,13 @@ export async function authenticate(username, password) {
 
 export function clearSession() {
   sessionStorage.removeItem(sessionKey);
-  Object.assign(store, { user: null, versions: [], studies: [], studyId: null, study: null, pairFilter: 'all' });
+  Object.assign(store, { user: null, versions: [], studies: [], studyId: null, study: null,
+    pairFilter: 'all', rosterData: null, roster: null });
+}
+
+export async function loadRosters(rosterId) {
+  store.rosterData = await request('/rosters');
+  const id = rosterId || store.rosterData.rosters[0]?.id;
+  store.roster = id ? await request(`/rosters/${id}`) : null;
+  return store.roster;
 }

@@ -4,10 +4,11 @@ import { pollWhile } from './hooks/poll.js';
 import { loginPage } from './pages/login.js';
 import { pairForm, pairsPage } from './pages/pairs.js';
 import { reviewPage } from './pages/review.js';
+import { rostersPage } from './pages/rosters.js';
 import { resultPage, runsPage } from './pages/runs.js';
 import { studyForm, versionForm, versionsPage } from './pages/versions.js';
 import { locationPage, navigate } from './router/location.js';
-import { authenticate, clearSession, loadCatalog, selectStudy, store } from './stores/workspace.js';
+import { authenticate, clearSession, loadCatalog, loadRosters, selectStudy, store } from './stores/workspace.js';
 import { notify, submitForm } from './utils/forms.js';
 
 const root = document.querySelector('#app');
@@ -25,6 +26,12 @@ async function render() {
   const { page, id } = locationPage();
   const simple = { versions: versionsPage, pairs: pairsPage, runs: runsPage };
   try {
+    if (page === 'rosters') {
+      await loadRosters(id);
+      if (count !== renderCount) return;
+      root.innerHTML = layout(page, rostersPage());
+      return;
+    }
     if (simple[page]) {
       root.innerHTML = layout(page, simple[page]());
       if (page === 'runs' && store.study?.runs.some(run => run.status === 'queued')) {
@@ -110,6 +117,16 @@ const actions = {
     await selectStudy(store.studyId);
     go('result', run.id);
   },
+  roster: async data => {
+    const entries = Object.entries(data).filter(([key]) => key.startsWith('run-'));
+    const run_ids = entries.map(([, value]) => value).filter(Boolean).map(Number);
+    if (run_ids.length < 2) throw new Error('请至少选择两个批次一起复验');
+    const previous_id = data.previous_id ? Number(data.previous_id) : null;
+    const roster = await post('/rosters', { run_ids, previous_id });
+    await loadRosters(roster.id);
+    go('rosters', roster.id);
+    notify(`已生成合并名单 #${roster.id}：每批每读序 ${roster.result.k} 人`);
+  },
 };
 
 function logout() {
@@ -143,7 +160,7 @@ root.addEventListener('submit', event => {
 root.addEventListener('click', async event => {
   const button = event.target.closest('button');
   if (!button) return;
-  const { demo, edit, close, code, filter, download, run } = button.dataset;
+  const { demo, edit, close, code, filter, download, run, roster } = button.dataset;
   if (demo) {
     const form = document.querySelector('#login-form');
     form.elements.username.value = demo;
@@ -160,6 +177,20 @@ root.addEventListener('click', async event => {
   } else if (filter) {
     store.pairFilter = filter;
     render();
+  } else if (roster) {
+    button.disabled = true;
+    try {
+      const blob = await request(`/rosters/${roster}/${download}`, { download: true });
+      const url = URL.createObjectURL(blob);
+      const name = download === 'members.csv' ? `roster-${roster}.csv` : `roster-${roster}.json`;
+      Object.assign(document.createElement('a'), { href: url, download: name }).click();
+      setTimeout(() => URL.revokeObjectURL(url), 3000);
+      notify('已下载合并名单');
+    } catch (error) {
+      notify(error.message);
+    } finally {
+      button.disabled = false;
+    }
   } else if (download) {
     button.disabled = true;
     const file = download === 'csv' ? 'pairs.csv' : 'export.json';

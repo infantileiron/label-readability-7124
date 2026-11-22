@@ -24,4 +24,6 @@ class Decision(StrEnum):
 
 
 METHOD = 'paired-exact-v1'
+ROSTER_METHOD = 'shared-roster-v1'
 PAIR_LIMIT = 1000
+COMBINED_STUDY_LIMIT = 12
